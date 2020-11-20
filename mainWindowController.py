@@ -63,29 +63,49 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
 
     @QtCore.pyqtSlot()
     def connectTrigger_clicked(self):
-        print("connecting to", self.triggerPort_comboBox_value)
+        if CytoCore.triggerPort == None:
+            print("connecting to", self.triggerPort_comboBox_value)
+            CytoCore.triggerPort = serial.Serial(self.triggerPort_comboBox_value)
+            self.connectTrigger_pushButton.setText("connected " + self.triggerPort_comboBox_value)
+        else:
+            CytoCore.triggerPort.__del__()
+            CytoCore.triggerPort = None
+            self.connectTrigger_pushButton.setText("connect")
         # portName = self.triggerPort_comboBox.
         return 0
 
     @QtCore.pyqtSlot()
     def connectTracer1_clicked(self):
-        print("connecting to", self.tracer1Port_comboBox_value)
+        if CytoCore.tracer1Port == None:
+            print("connecting to", self.tracer1Port_comboBox_value)
+            CytoCore.tracer1Port = serial.Serial(self.tracer1Port_comboBox_value)
+            self.connectTracer1_pushButton.setText("connected " + self.tracer1Port_comboBox_value)
+        else:
+            CytoCore.tracer1Port.__del__()
+            CytoCore.tracer1Port = None
+            self.connectTracer1_pushButton.setText("connect")
         # portName = self.triggerPort_comboBox.
         return 0
 
     @QtCore.pyqtSlot()
     def connectTracer2_clicked(self):
-        print("connecting to", self.tracer2Port_comboBox_value)
+        if CytoCore.tracer2Port == None:
+            print("connecting to", self.tracer2Port_comboBox_value)
+            CytoCore.tracer2Port = serial.Serial(self.tracer2Port_comboBox_value)
+            self.connectTracer2_pushButton.setText("connected " + self.tracer2Port_comboBox_value)
+        else:
+            CytoCore.tracer2Port.__del__()
+            CytoCore.tracer2Port = None
+            self.connectTracer2_pushButton.setText("connect")
         # portName = self.triggerPort_comboBox.
         return 0
 
     @QtCore.pyqtSlot()
     def startStop_button_clicked(self):
         if CytoCore.status == 0:
-            self.timer.start(100)
+            self.timer.start(10)
             CytoCore.status = 1
         else:
             self.timer.stop()
             CytoCore.status = 0
         return 0
-
