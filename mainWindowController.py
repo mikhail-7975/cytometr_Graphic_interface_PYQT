@@ -1,27 +1,9 @@
 from mainWindow import Ui_MainWindow
 from PyQt5 import QtWidgets, QtCore
 
-import random
-import math
+from CytometrCore import *
 
-class CytometrCore:
-    def __init__(self):
-        self.triggerPort = None
-        self.tracer1Port = None
-        self.tracer2Port = None
-
-        self.triggerData = []
-        self.tracer1Data = []
-        self.tracer2Data = []
-
-        self.status = 0
-
-    def readData(self):
-        return [200 * math.exp(-((x - 100) / 10)**2 / 2) + random.randint(-10, 10) for x in range(0, 2000)], \
-               [200 * math.exp(-((x - 700) / 70)**2 / 2) + random.randint(-10, 10) for x in range(0, 2000)],\
-               [200 * math.exp(-((x - 1400) / 140)**2 / 2) + random.randint(-10, 10) for x in range(0, 2000)]
-
-CytoCore = CytometrCore()
+CytoCore = Cytometr_core()
 
 class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
     def __init__(self, parent = None):
@@ -30,18 +12,71 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.drawPlot)
 
-        self.connectTracer1_pushButton.clicked.connect(self.connectTracer1_pushButton_clicked)
+        #settings for trigger combo box
+        for i in range(len(CytoCore.portNameList)):
+            self.triggerPort_comboBox.addItem(CytoCore.portNameList[i], i + 1)
+        self.triggerPort_comboBox.addItem("...", 0)
+        self.triggerPort_comboBox.setCurrentText("...")
+        self.triggerPort_comboBox_value = "..."
+
+        # settings for tracer1 combo box
+        for i in range(len(CytoCore.portNameList)):
+            self.tracer1Port_comboBox.addItem(CytoCore.portNameList[i], i + 1)
+        self.tracer1Port_comboBox.addItem("...", 0)
+        self.tracer1Port_comboBox.setCurrentText("...")
+        self.tracer1Port_comboBox_value = "..."
+
+        # settings for tracer2 combo box
+        for i in range(len(CytoCore.portNameList)):
+            self.tracer2Port_comboBox.addItem(CytoCore.portNameList[i], i + 1)
+        self.tracer2Port_comboBox.addItem("...", 0)
+        self.tracer2Port_comboBox.setCurrentText("...")
+        self.tracer2Port_comboBox_value = "..."
+
+        #self.connectTracer1_pushButton.clicked.connect(self.connectTracer1_clicked)
         self.startStop_button.clicked.connect(self.startStop_button_clicked)
+
+        self.connectTrigger_pushButton.clicked.connect(self.connectTrigger_clicked)
+        self.connectTracer1_pushButton.clicked.connect(self.connectTracer1_clicked)
+        self.connectTracer2_pushButton.clicked.connect(self.connectTracer2_clicked)
+
+        self.triggerPort_comboBox.activated.connect(self.triggerPortNameComboboxHandler)
+        self.tracer1Port_comboBox.activated.connect(self.tracer1PortNameComboboxHandler)
+        self.tracer2Port_comboBox.activated.connect(self.tracer2PortNameComboboxHandler)
+
+    def triggerPortNameComboboxHandler(self, idx):
+        self.triggerPort_comboBox_value = self.triggerPort_comboBox.itemText(idx)
+
+    def tracer1PortNameComboboxHandler(self, idx):
+        self.tracer1Port_comboBox_value = self.tracer1Port_comboBox.itemText(idx)
+
+    def tracer2PortNameComboboxHandler(self, idx):
+        self.tracer2Port_comboBox_value = self.tracer2Port_comboBox.itemText(idx)
 
     def drawPlot(self):
         self.graphic.clear()
+        x = [i for i in range(2000)]
         trig, tr1, tr2 = CytoCore.readData()
-        self.graphic.plot([i for i in range(2000)], trig, pen ='r')
-        self.graphic.plot([i for i in range(2000)], tr1, pen ='g')
-        self.graphic.plot([i for i in range(2000)], tr2, pen ='b')
+        self.graphic.plot(x, trig, pen ='r')
+        self.graphic.plot(x, tr1, pen ='g')
+        self.graphic.plot(x, tr2, pen ='b')
 
     @QtCore.pyqtSlot()
-    def connectTracer1_pushButton_clicked(self):
+    def connectTrigger_clicked(self):
+        print("connecting to", self.triggerPort_comboBox_value)
+        # portName = self.triggerPort_comboBox.
+        return 0
+
+    @QtCore.pyqtSlot()
+    def connectTracer1_clicked(self):
+        print("connecting to", self.tracer1Port_comboBox_value)
+        # portName = self.triggerPort_comboBox.
+        return 0
+
+    @QtCore.pyqtSlot()
+    def connectTracer2_clicked(self):
+        print("connecting to", self.tracer2Port_comboBox_value)
+        # portName = self.triggerPort_comboBox.
         return 0
 
     @QtCore.pyqtSlot()
@@ -53,3 +88,4 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             self.timer.stop()
             CytoCore.status = 0
         return 0
+
