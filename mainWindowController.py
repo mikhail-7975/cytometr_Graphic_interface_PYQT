@@ -54,12 +54,21 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
         self.tracer2Port_comboBox_value = self.tracer2Port_comboBox.itemText(idx)
 
     def drawPlot(self):
-        self.graphic.clear()
-        x = [i for i in range(2000)]
-        trig, tr1, tr2 = CytoCore.readData()
-        self.graphic.plot(x, trig, pen ='r')
-        self.graphic.plot(x, tr1, pen ='g')
-        self.graphic.plot(x, tr2, pen ='b')
+
+        x = [i for i in range(CytoCore.dataLen * 2)]
+        CytoCore.readData()
+        if((CytoCore.trig_upd == 1) and (CytoCore.tr1_upd == 1)):# and (CytoCore.tr2_upd == 1)):
+            tr = CytoCore.triggerData + [-1 for i in range(CytoCore.dataLen)]
+            tr1 = [-1 for i in range(CytoCore.dataLen)] + CytoCore.tracer1Data
+            tr2 = [-1 for i in range(CytoCore.dataLen)] + CytoCore.tracer2Data
+            self.graphic.clear()
+            self.graphic.plot(x, tr, pen ='r')
+            self.graphic.plot(x, tr1, pen ='g')
+            self.graphic.plot(x, tr2, pen ='b')
+            CytoCore.tr2_upd = 0
+            CytoCore.tr1_upd = 0
+            CytoCore.trig_upd = 0
+            #CytoCore.tracer1Updated = 0
 
     @QtCore.pyqtSlot()
     def connectTrigger_clicked(self):
@@ -67,6 +76,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             print("connecting to", self.triggerPort_comboBox_value)
             CytoCore.triggerPort = serial.Serial(self.triggerPort_comboBox_value)
             self.connectTrigger_pushButton.setText("connected " + self.triggerPort_comboBox_value)
+            #CytoCore.triggerPort.write(b'ack')
         else:
             CytoCore.triggerPort.__del__()
             CytoCore.triggerPort = None
@@ -80,6 +90,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             print("connecting to", self.tracer1Port_comboBox_value)
             CytoCore.tracer1Port = serial.Serial(self.tracer1Port_comboBox_value)
             self.connectTracer1_pushButton.setText("connected " + self.tracer1Port_comboBox_value)
+            #CytoCore.tracer1Port.write(b'ack')
         else:
             CytoCore.tracer1Port.__del__()
             CytoCore.tracer1Port = None
@@ -93,6 +104,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             print("connecting to", self.tracer2Port_comboBox_value)
             CytoCore.tracer2Port = serial.Serial(self.tracer2Port_comboBox_value)
             self.connectTracer2_pushButton.setText("connected " + self.tracer2Port_comboBox_value)
+            #CytoCore.tracer2Port.write(b'ack')
         else:
             CytoCore.tracer2Port.__del__()
             CytoCore.tracer2Port = None
@@ -102,10 +114,19 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
 
     @QtCore.pyqtSlot()
     def startStop_button_clicked(self):
-        if CytoCore.status == 0:
+        if CytoCore.status == statuses.doNothing:
+            self.startStop_button.setText("stop")
             self.timer.start(10)
-            CytoCore.status = 1
+
+            CytoCore.status = statuses.beReady
         else:
             self.timer.stop()
-            CytoCore.status = 0
+            CytoCore.status = statuses.doNothing
+            if (CytoCore.triggerPort != None):
+                CytoCore.triggerPort.write(b'end')
+            if (CytoCore.tracer1Port != None):
+                CytoCore.tracer1Port.write(b'end')
+            if (CytoCore.tracer2Port != None):
+                CytoCore.tracer2Port.write(b'end')
+            self.startStop_button.setText("start")
         return 0
