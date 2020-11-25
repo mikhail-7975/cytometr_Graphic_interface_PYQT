@@ -5,6 +5,7 @@ try:
 except Exception as err:
     print(err)
     input()
+    exit(1)
 
 class statuses:
     doNothing = 13
@@ -58,7 +59,7 @@ class Cytometr_core:
                 self.tracer1Data = tracer1Data
                 self.tr1_upd = 1
                 print("New tracer1")
-                self.tracer1Port.write(b'ack')
+                #self.tracer1Port.write(b'ack')
 
         if (self.tracer2Port != None):
             if (self.tracer2Port.inWaiting()):
@@ -78,7 +79,12 @@ class Cytometr_core:
                 self.triggerData = triggerData
                 self.trig_upd = 1
                 print("New trigger")
-                self.triggerPort.write(b'ack')
+                #self.triggerPort.write(b'ack')
+
+        if(self.tr1_upd and self.trig_upd):
+            self.tracer1Port.write(b'ack')
+            self.triggerPort.write(b'ack')
+
 
         print("trigger = ", self.triggerData)
         print("tracer1 = ", self.triggerData)

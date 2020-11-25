@@ -14,6 +14,8 @@ try:
 except Exception as err:
     print(err)
     input()
+    exit(1)
+
 
 
 class Ui_MainWindow(object):

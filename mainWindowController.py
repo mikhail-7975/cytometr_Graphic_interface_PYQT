@@ -7,6 +7,8 @@ try:
 except Exception as err:
     print(err)
     input()
+    exit(1)
+
 
 CytoCore = Cytometr_core()
 
@@ -45,8 +47,9 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
         self.connectTracer1_pushButton.clicked.connect(self.connectTracer1_clicked)
         self.connectTracer2_pushButton.clicked.connect(self.connectTracer2_clicked)
         self.setTriggerSettings_pushButton.clicked.connect(self.setTrigger_clicked)
-        self.setTracer1Settings_pushButton.clicked.connect(self.setTracer1_clicked)
-        self.setTracer2Settings_pushButton.clicked.connect(self.setTracer2_clicked)
+        self.setTracer1settings_pushButton.clicked.connect(self.setTracer1_clicked)
+        #self.setTracer1Settings_pushButton
+        self.setTracer2settings_pushButton.clicked.connect(self.setTracer2_clicked)
 
         self.triggerPort_comboBox.activated.connect(self.triggerPortNameComboboxHandler)
         self.tracer1Port_comboBox.activated.connect(self.tracer1PortNameComboboxHandler)
@@ -124,7 +127,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
     def startStop_button_clicked(self):
         if CytoCore.status == statuses.doNothing:
             self.startStop_button.setText("stop")
-            self.timer.start(10)
+            self.timer.start(100)
 
             CytoCore.status = statuses.beReady
         else:
@@ -148,7 +151,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
 
     @QtCore.pyqtSlot()
     def setTracer1_clicked(self):
-        if CytoCore.triggerPort != None:
+        if CytoCore.tracer1Port != None:
             msg = "st" + "0000" + 'g' + self.tracer1gain_lineEdit.text() + '.'
             CytoCore.tracer1Port.write(msg.encode('utf-8'))
         return 0
