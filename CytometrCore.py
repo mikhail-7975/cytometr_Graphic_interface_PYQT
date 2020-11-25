@@ -1,8 +1,10 @@
-import random
-import math
-
-import serial
-import serial.tools.list_ports
+print("cytometr core")
+try:
+    import serial
+    import serial.tools.list_ports
+except Exception as err:
+    print(err)
+    input()
 
 class statuses:
     doNothing = 13

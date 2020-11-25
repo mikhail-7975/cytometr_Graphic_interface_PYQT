@@ -1,3 +1,4 @@
+print("main")
 from mainWindowController import *
 
 if __name__ == "__main__":

@@ -1,7 +1,12 @@
-from mainWindow import Ui_MainWindow
-from PyQt5 import QtWidgets, QtCore
+print("main window controller")
+try:
+    from mainWindow import Ui_MainWindow
+    from PyQt5 import QtWidgets, QtCore
 
-from CytometrCore import *
+    from CytometrCore import *
+except Exception as err:
+    print(err)
+    input()
 
 CytoCore = Cytometr_core()
 
@@ -39,6 +44,9 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
         self.connectTrigger_pushButton.clicked.connect(self.connectTrigger_clicked)
         self.connectTracer1_pushButton.clicked.connect(self.connectTracer1_clicked)
         self.connectTracer2_pushButton.clicked.connect(self.connectTracer2_clicked)
+        self.setTriggerSettings_pushButton.clicked.connect(self.setTrigger_clicked)
+        self.setTracer1Settings_pushButton.clicked.connect(self.setTracer1_clicked)
+        self.setTracer2Settings_pushButton.clicked.connect(self.setTracer2_clicked)
 
         self.triggerPort_comboBox.activated.connect(self.triggerPortNameComboboxHandler)
         self.tracer1Port_comboBox.activated.connect(self.tracer1PortNameComboboxHandler)
@@ -129,4 +137,25 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             if (CytoCore.tracer2Port != None):
                 CytoCore.tracer2Port.write(b'end')
             self.startStop_button.setText("start")
+        return 0
+
+    @QtCore.pyqtSlot()
+    def setTrigger_clicked(self):
+        if CytoCore.triggerPort != None:
+            msg = "st" + self.triggerLevel_lineEdit.text() + 'g' + self.gain_lineEdit.text() + '.'
+            CytoCore.triggerPort.write(msg.encode('utf-8'))
+        return 0
+
+    @QtCore.pyqtSlot()
+    def setTracer1_clicked(self):
+        if CytoCore.triggerPort != None:
+            msg = "st" + "0000" + 'g' + self.tracer1gain_lineEdit.text() + '.'
+            CytoCore.tracer1Port.write(msg.encode('utf-8'))
+        return 0
+
+    @QtCore.pyqtSlot()
+    def setTracer2_clicked(self):
+        if CytoCore.tracer2rPort != None:
+            msg = "st" + "0000" + 'g' + self.tracer2gain_lineEdit.text() + '.'
+            CytoCore.tracer2Port.write(msg.encode('utf-8'))
         return 0
