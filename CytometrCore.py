@@ -15,7 +15,7 @@ class statuses:
 
 class Cytometr_core:
     def __init__(self):
-        self.dataLen = 2000
+        self.dataLen = 4000
         ports = serial.tools.list_ports.comports(include_links=False)
         self.portNameList = [p.device for p in ports]
 

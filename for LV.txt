@@ -1,0 +1,5 @@
+
+
+def readData():
+	if(trig_updated_Flag == 0) and (tracer1_updated_Flag == 0) and (tracer1_updated_Flag == 0):
+		
