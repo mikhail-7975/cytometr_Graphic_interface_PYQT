@@ -15,7 +15,8 @@ class statuses:
 
 class Cytometr_core:
     def __init__(self):
-        self.dataLen = 4000
+        self.triggerDataLen = 800
+        self.tracerDataLen = 4000
         ports = serial.tools.list_ports.comports(include_links=False)
         self.portNameList = [p.device for p in ports]
 
@@ -23,9 +24,9 @@ class Cytometr_core:
         self.tracer1Port = None
         self.tracer2Port = None
 
-        self.triggerData = [0] * self.dataLen
-        self.tracer1Data = [0] * self.dataLen
-        self.tracer2Data = [0] * self.dataLen
+        self.triggerData = [0] * self.triggerDataLen
+        self.tracer1Data = [0] * self.tracerDataLen
+        self.tracer2Data = [0] * self.tracerDataLen
 
         self.trig_upd = 0
         self.tr1_upd = 0
@@ -53,8 +54,8 @@ class Cytometr_core:
 
         if (self.tracer1Port != None):
             if (self.tracer1Port.inWaiting()):
-                buf_trace = self.tracer1Port.read(self.dataLen * 2)
-                for i in range(self.dataLen):
+                buf_trace = self.tracer1Port.read(self.tracerDataLen * 2)
+                for i in range(self.tracerDataLen):
                     tracer1Data.append(buf_trace[2 * i] + buf_trace[2 * i + 1] * 256)
                 self.tracer1Data = tracer1Data
                 self.tr1_upd = 1
@@ -63,8 +64,8 @@ class Cytometr_core:
 
         if (self.tracer2Port != None):
             if (self.tracer2Port.inWaiting()):
-                buf_trace = self.tracer2Port.read(self.dataLen * 2)
-                for i in range(self.dataLen):
+                buf_trace = self.tracer2Port.read(self.tracerDataLen * 2)
+                for i in range(self.tracerDataLen):
                     tracer2Data.append(buf_trace[2 * i] + buf_trace[2 * i + 1] * 256)
                 self.tracer2Data = tracer2Data
                 self.tr2_upd = 1
@@ -73,8 +74,8 @@ class Cytometr_core:
 
         if (self.triggerPort != None):
             if (self.triggerPort.inWaiting()):
-                buf_trace = self.triggerPort.read(self.dataLen * 2)
-                for i in range(self.dataLen):
+                buf_trace = self.triggerPort.read(self.triggerDataLen * 2)
+                for i in range(self.triggerDataLen):
                     triggerData.append(buf_trace[2 * i] + buf_trace[2 * i + 1] * 256)
                 self.triggerData = triggerData
                 self.trig_upd = 1

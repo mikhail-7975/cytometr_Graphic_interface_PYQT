@@ -66,12 +66,12 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
 
     def drawPlot(self):
 
-        x = [i for i in range(CytoCore.dataLen * 2)]
+        x = [i for i in range(CytoCore.tracerDataLen + CytoCore.triggerDataLen)]
         CytoCore.readData()
         if((CytoCore.trig_upd == 1) and (CytoCore.tr1_upd == 1)):# and (CytoCore.tr2_upd == 1)):
-            tr = CytoCore.triggerData + [-1 for i in range(CytoCore.dataLen)]
-            tr1 = [-1 for i in range(CytoCore.dataLen)] + CytoCore.tracer1Data
-            tr2 = [-1 for i in range(CytoCore.dataLen)] + CytoCore.tracer2Data
+            tr = CytoCore.triggerData + [-1 for i in range(CytoCore.tracerDataLen)]
+            tr1 = [-1 for i in range(CytoCore.triggerDataLen)] + CytoCore.tracer1Data
+            tr2 = [-1 for i in range(CytoCore.triggerDataLen)] + CytoCore.tracer2Data
             self.graphic.clear()
             self.graphic.plot(x, tr, pen ='r')
             self.graphic.plot(x, tr1, pen ='g')
@@ -89,6 +89,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             self.connectTrigger_pushButton.setText("connected " + self.triggerPort_comboBox_value)
             #CytoCore.triggerPort.write(b'ack')
         else:
+            CytoCore.triggerPort.close()
             CytoCore.triggerPort.__del__()
             CytoCore.triggerPort = None
             self.connectTrigger_pushButton.setText("connect")
@@ -103,6 +104,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             self.connectTracer1_pushButton.setText("connected " + self.tracer1Port_comboBox_value)
             #CytoCore.tracer1Port.write(b'ack')
         else:
+            CytoCore.tracer1Port.close()
             CytoCore.tracer1Port.__del__()
             CytoCore.tracer1Port = None
             self.connectTracer1_pushButton.setText("connect")
@@ -117,6 +119,7 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
             self.connectTracer2_pushButton.setText("connected " + self.tracer2Port_comboBox_value)
             #CytoCore.tracer2Port.write(b'ack')
         else:
+            CytoCore.tracer2Port.close()
             CytoCore.tracer2Port.__del__()
             CytoCore.tracer2Port = None
             self.connectTracer2_pushButton.setText("connect")
@@ -127,17 +130,24 @@ class mainWindowController(QtWidgets.QDialog, Ui_MainWindow):
     def startStop_button_clicked(self):
         if CytoCore.status == statuses.doNothing:
             self.startStop_button.setText("stop")
-            self.timer.start(100)
 
+            while(CytoCore.triggerPort.inWaiting()):
+                CytoCore.triggerPort.read()
+            while (CytoCore.tracer1Port.inWaiting()):
+                CytoCore.tracer1Port.read()
             CytoCore.status = statuses.beReady
+            self.timer.start(100)
         else:
             self.timer.stop()
             CytoCore.status = statuses.doNothing
             if (CytoCore.triggerPort != None):
+                CytoCore.triggerPort.write(b'ack')
                 CytoCore.triggerPort.write(b'end')
             if (CytoCore.tracer1Port != None):
+                CytoCore.tracer1Port.write(b'ack')
                 CytoCore.tracer1Port.write(b'end')
             if (CytoCore.tracer2Port != None):
+                CytoCore.tracer2Port.write(b'ack')
                 CytoCore.tracer2Port.write(b'end')
             self.startStop_button.setText("start")
         return 0
